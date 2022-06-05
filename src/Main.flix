@@ -5,7 +5,7 @@ enum Piece with Eq, Order, ToString {
 type alias Position = (Int32, Int32)
 type alias Solution = Set[(Piece, Position)]
 
-def takes(p: Piece, delta: Position): Bool & Pure =
+def takes(p: Piece, delta: Position): Bool =
     let (dx, dy) = delta;
     match p {
         case King => dx <= 1 and dy <= 1,
@@ -15,7 +15,7 @@ def takes(p: Piece, delta: Position): Bool & Pure =
         case Knight => (dx == 1 and dy == 2) or (dx == 2 and dy == 1)
     }
 
-def allows(p: Piece, pos1: Position, pos2: Position): Bool & Pure =
+def allows(p: Piece, pos1: Position, pos2: Position): Bool =
     let (x1, y1) = pos1;
     let (x2, y2) = pos2;
     let delta = (Int32.abs(x1 - x2), Int32.abs(y1 - y2));
@@ -31,19 +31,18 @@ def candidates(rows: Int32, cols: Int32, solutions: Set[Solution]): Set[(Positio
         Set.flatMap(y -> solutions |>
             Set.map(solution -> ((x, y), solution))))
 
-def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] & Impure =
+def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] =
     match pieces {
         case Nil => Set#{Set#{}}
-        case candidate :: rest =>
+        case piece :: rest =>
             candidates(rows, cols, solve(rows, cols, rest)) |>
             Set.flatMap(match (pos, solution) -> 
-                if (allowed(candidate, pos, solution))
-                    Set#{Set.insert((candidate, pos), solution)}
+                if (allowed(piece, pos, solution))
+                    Set#{Set.insert((piece, pos), solution)}
                 else
                     Set#{})
     }
 
-// The main entry point.
 def main(): Unit & Impure =
     /// let solutions = solve(3, 3, King :: King :: Rook :: Nil);
     let solutions = solve(4, 4, Rook :: Rook :: Knight :: Knight :: Knight :: Knight :: Nil);
