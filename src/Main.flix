@@ -25,22 +25,18 @@ def allowed(candidate: Piece, pos1: Position, solution: Solution): Bool =
     solution |> Set.forall(
         match (piece, pos2) -> allows(candidate, pos1, pos2) and allows(piece, pos2, pos1))
 
-def candidates(rows: Int32, cols: Int32, solutions: Set[Solution]): Set[(Position, Solution)] =
-    Set.range(0, rows) |>
-    Set.flatMap(x -> Set.range(0, cols) |>
-        Set.flatMap(y -> solutions |>
-            Set.map(solution -> ((x, y), solution))))
-
 def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] =
     match pieces {
         case Nil => Set#{Set#{}}
         case piece :: rest =>
-            candidates(rows, cols, solve(rows, cols, rest)) |>
-            Set.flatMap(match (pos, solution) -> 
-                if (allowed(piece, pos, solution))
-                    Set#{Set.insert((piece, pos), solution)}
-                else
-                    Set#{})
+            use Set.flatMap;
+            let* solution = solve(rows, cols, rest);
+            let* x = Set.range(0, rows);
+            let* y = Set.range(0, cols);
+            if(allowed(piece, (x, y), solution))
+                Set#{Set.insert((piece, (x, y)), solution)}
+            else
+                Set#{}
     }
 
 def main(): Unit & Impure =
