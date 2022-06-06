@@ -33,10 +33,33 @@ def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] =
             let* solution = solve(rows, cols, rest);
             let* x = Set.range(0, rows);
             let* y = Set.range(0, cols);
-            if(allowed(piece, (x, y), solution))
-                Set#{Set.insert((piece, (x, y)), solution)}
+            let pos = (x, y);
+            if(allowed(piece, pos, solution))
+                Set#{Set.insert((piece, pos), solution)}
             else
                 Set#{}
+
+            /// Possible for-comprehension version:
+
+            /// for (
+            ///     solution <- solve(rows, cols, rest);
+            ///     x <- Set.range(0, rows);
+            ///     y <- Set.range(0, cols);
+            ///     let pos = (x, y);
+            ///     if allowed(piece, pos, solution)
+            /// ) yield Set.insert((piece, pos), solution)
+
+            ///  Which would desugar to:
+
+            /// Set.flatMap(solution ->
+            ///     Set.flatMap(x ->
+            ///         Set.map(pos -> Set.insert((piece, pos), solution),
+            ///             Set.filter(pos -> allowed(piece, pos, solution),
+            ///                 Set.map(y ->
+            ///                     (x, y),
+            ///                     Set.range(0, cols)))),
+            ///         Set.range(0, rows)),
+            ///     solve(rows, cols, rest))
     }
 
 def main(): Unit & Impure =
