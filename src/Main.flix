@@ -55,8 +55,7 @@ def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] =
             ///     Set.flatMap(x ->
             ///         Set.map(pos -> Set.insert((piece, pos), solution),
             ///             Set.filter(pos -> allowed(piece, pos, solution),
-            ///                 Set.map(y ->
-            ///                     (x, y),
+            ///                 Set.map(y -> (x, y),
             ///                     Set.range(0, cols)))),
             ///         Set.range(0, rows)),
             ///     solve(rows, cols, rest))
