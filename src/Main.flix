@@ -22,46 +22,22 @@ def allows(p: Piece, pos1: Position, pos2: Position): Bool =
     pos1 != pos2 and not takes(p, delta)
 
 def allowed(candidate: Piece, pos1: Position, solution: Solution): Bool =
-    solution |> Set.forall(
+    solution |> Set.forAll(
         match (piece, pos2) -> allows(candidate, pos1, pos2) and allows(piece, pos2, pos1))
 
 def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] =
     match pieces {
         case Nil => Set#{Set#{}}
         case piece :: rest =>
-            use Set.flatMap;
-            let* solution = solve(rows, cols, rest);
-            let* x = Set.range(0, rows);
-            let* y = Set.range(0, cols);
-            let pos = (x, y);
-            if(allowed(piece, pos, solution))
-                Set#{Set.insert((piece, pos), solution)}
-            else
-                Set#{}
-
-            /// Possible for-comprehension version:
-
-            /// for (
-            ///     solution <- solve(rows, cols, rest);
-            ///     x <- Set.range(0, rows);
-            ///     y <- Set.range(0, cols);
-            ///     let pos = (x, y);
-            ///     if allowed(piece, pos, solution)
-            /// ) yield Set.insert((piece, pos), solution)
-
-            ///  Which would desugar to:
-
-            /// Set.flatMap(solution ->
-            ///     Set.flatMap(x ->
-            ///         Set.map(match (_y, pos) -> Set.insert((piece, pos), solution),
-            ///             Set.filter(match (_y, pos) -> allowed(piece, pos, solution),
-            ///                 Set.map(y -> (y, (x, y)),
-            ///                     Set.range(0, cols)))),
-            ///         Set.range(0, rows)),
-            ///     solve(rows, cols, rest))
+            foreach (
+                solution <- solve(rows, cols, rest);
+                x <- Set.range(0, rows);
+                y <- Set.range(0, cols);
+                if allowed(piece, (x, y), solution)
+            ) yield Set.insert((piece, (x, y)), solution)
     }
 
 def main(): Unit & Impure =
-    /// let solutions = solve(3, 3, King :: King :: Rook :: Nil);
+    // let solutions = solve(3, 3, King :: King :: Rook :: Nil);
     let solutions = solve(4, 4, Rook :: Rook :: Knight :: Knight :: Knight :: Knight :: Nil);
     println(Set.size(solutions))
