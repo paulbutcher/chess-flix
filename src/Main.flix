@@ -33,11 +33,13 @@ def solve(rows: Int32, cols: Int32, pieces: List[Piece]): Set[Solution] =
                 solution <- solve(rows, cols, rest);
                 x <- Set.range(0, rows);
                 y <- Set.range(0, cols);
-                if allowed(piece, (x, y), solution)
-            ) yield Set.insert((piece, (x, y)), solution)
+                pos <- Some((x, y));
+                if allowed(piece, pos, solution)
+            ) yield Set.insert((piece, pos), solution)
     }
 
 def main(): Unit & Impure =
-    // let solutions = solve(3, 3, King :: King :: Rook :: Nil);
-    let solutions = solve(4, 4, Rook :: Rook :: Knight :: Knight :: Knight :: Knight :: Nil);
+    // let solutions = solve(3, 3, List#{King, King, Rook});
+    // let solutions = solve(4, 4, List#{Rook, Rook, Knight, Knight, Knight, Knight});
+    let solutions = solve(6, 9, List#{King, King, Knight, Rook, Bishop, Queen});
     println(Set.size(solutions))
